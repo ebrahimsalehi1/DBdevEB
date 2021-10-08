@@ -1,0 +1,54 @@
+-- how to fetch first N rows of table
+select *
+from customers cust
+order by cust.CustomerID
+offset 0 rows
+fetch first 3 rows only
+-- Also, you can fetch N top of rows
+select Top 3 *
+from customers
+-----------------------------------------------------
+-- it dosent work with subquery
+-- but it works with CTE
+with cust_cte as
+(select *
+from customers cust
+order by cust.CustomerID -- It makes error if you user aggregate functions (count)
+offset 0 rows -- it means this line as same as all table data
+)
+select count(*) from cust_cte
+
+
+select count(*)
+from customers cust
+
+----------------------------------------------
+
+-- implementing pagination solution
+create or alter procedure sp_pagination @page int,@size int
+AS
+--declare @page int = 1
+--declare @size int = 3
+
+if @page-1<0
+begin
+	select null as Col1
+	return
+end
+
+select *
+from customers
+order by 1 
+offset (@page-1)*@size rows
+fetch next @size rows only
+
+select *
+from customers 
+order by 1
+--------------------------------------------------------
+
+exec sp_pagination 0,10
+
+-- so it mahes an error relies on negative value of offset
+--so I am going to fix the error
+--------------------------------------------------------
